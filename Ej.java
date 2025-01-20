@@ -3,24 +3,35 @@ import java.util.*;
 
 class Contacto implements Serializable {
     private String nombre;
+    private String apellido;
     private String telefono;
+    private String dni;
 
-    public Contacto(String nombre, String telefono) {
+    public Contacto(String nombre, String apellido, String telefono, String dni) {
         this.nombre = nombre;
+        this.apellido = apellido;
         this.telefono = telefono;
+        this.dni = dni;
     }
-
     public String getNombre() {
         return nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
     }
 
     public String getTelefono() {
         return telefono;
     }
 
+    public String getDni() {
+        return dni;
+    }
+
     @Override
     public String toString() {
-        return "Nombre: " + nombre + ", Teléfono: " + telefono;
+        return nombre + " " + apellido + " - " + telefono + " - " + dni;
     }
 }
 
@@ -68,10 +79,22 @@ public class Ej {
     private static void incluirNuevaEntrada(Scanner scanner) {
         System.out.print("Ingrese el nombre: ");
         String nombre = scanner.nextLine();
+        System.out.print("Ingrese el apellido: ");
+        String apellido = scanner.nextLine();
         System.out.print("Ingrese el teléfono: ");
         String telefono = scanner.nextLine();
-        agenda.add(new Contacto(nombre, telefono));
-        System.out.println("Contacto añadido.");
+        System.out.print("Ingrese el DNI: ");
+        String dni = scanner.nextLine();
+    
+        for (Contacto contacto : agenda) {
+            if (contacto.getDni().equals(dni)) {
+                System.out.println("Error: Ya existe un contacto con ese DNI");
+                return;
+            }
+        }
+    
+        agenda.add(new Contacto(nombre, apellido, telefono, dni));
+        System.out.println("Contacto añadido");
     }
 
     private static void eliminarContacto(Scanner scanner) {
@@ -103,7 +126,14 @@ public class Ej {
             }
         }
     }
-
+    private static void guardarAgenda() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+            oos.writeObject(agenda);
+        } catch (IOException e) {
+            System.out.println("Error al guardar la agenda: " + e.getMessage());
+        }
+    }
+    
     private static void cargarAgenda() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
             agenda = (List<Contacto>) ois.readObject();
@@ -111,14 +141,6 @@ public class Ej {
             System.out.println("No se encontró el archivo de la agenda. Se creará uno nuevo.");
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error al cargar la agenda: " + e.getMessage());
-        }
-    }
-
-    private static void guardarAgenda() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
-            oos.writeObject(agenda);
-        } catch (IOException e) {
-            System.out.println("Error al guardar la agenda: " + e.getMessage());
         }
     }
 }
